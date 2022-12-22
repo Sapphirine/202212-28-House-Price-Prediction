@@ -1,0 +1,4 @@
+Steps of running:
+1 run the load-data.py first
+2 run sklearn-model and spark-model
+3 run graphs
