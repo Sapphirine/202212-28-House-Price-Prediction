@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+
+<!-- Load d3.js you can use ither version if you want -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<!-- Create a div where the graph will take place -->
+
+<div class="container">
+
+<div class="row">
+<div class="col-md-6" id="datahist"></div>
+
+</div>
+<div class="row">
+<div class="col-md-6" id="datapie"></div>
+
+</div>
+<div class="row">
+<div class="col-md-6" id="datapie2"></div>
+
+</div>
+<div class="row">
+<div class="col-md-6" id="line"></div>
+
+</div>
+</div>
+
+<script>
+
+ $(document).ready(function(){
+
+hist();
+pie();
+pie2();
+//line();
+
+})
+
+function pie(){
+  
+   var width2 =  750
+       height2 = 750
+       margin2 = 50
+    var radius = Math.min(width2, height2) / 2 - margin2
+	var svg = d3.select("#datapie")
+	  .append("svg")
+		.attr("width", width2)
+		.attr("height", height2)	
+	  .append("g")
+		.attr("transform", "translate(" + width2 / 2 + "," + height2 / 2 + ")");
+ 
+ d3.csv("./data_final.csv", function(data) {
+	 
+	  var weather_data={}  
+	  data.forEach(function(d) {
+	     if (d.bedrooms>4 || d.bedrooms<2){
+		    key='more than 4'
+		 }else{
+			key=+d.bedrooms
+		}
+		if ( ! (key in weather_data)){
+			 weather_data[key] = 1;
+		  }else{
+			 weather_data[key] =weather_data[key]+1
+		  }
+		
+	  });
+	    var color = d3.scaleOrdinal()
+		.domain(weather_data)
+		.range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56"])
+	var pie = d3.pie()
+	  .value(function(d) {return d.value; })
+	var data_ready = pie(d3.entries(weather_data))
+	var arcGenerator = d3.arc()
+	  .innerRadius(0)
+	  .outerRadius(radius)
+
+	// Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+	svg
+	  .selectAll('mySlices')
+	  .data(data_ready)
+	  .enter()
+	  .append('path')
+		.attr('d', arcGenerator)
+		.attr('fill', function(d){ return(color(d.data.key)) })
+		.attr("stroke", "black")
+		.style("stroke-width", "2px")
+		.style("opacity", 0.7)
+
+	
+	// Now add the annotation. Use the centroid method to get the best coordinates
+	svg
+	  .selectAll('mySlices')
+	  .data(data_ready)
+	  .enter()
+	  .append('text')
+	  .text(function(d){ return "number of " +d.data.key +': '+Math.round((d.data.value/4603)*100)+'%'})
+	  .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+	  .style("text-anchor", "middle")
+	  .style("font-size", 12)
+   
+    
+ });
+}
+
+
+function pie2(){
+  
+   var width3 =  750
+       height3 = 750
+       margin3 = 50
+    var radius = Math.min(width3, height3) / 2 - margin3
+	var svg = d3.select("#datapie2")
+	  .append("svg")
+		.attr("width", width3)
+		.attr("height", height3)	
+	  .append("g")
+		.attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
+ 
+ d3.csv("./data_final.csv", function(data) {
+	 
+	  var weather_data={}  
+	  data.forEach(function(d) {
+	     if (d.yr_renovated>0){
+		    key='renovated'
+		 }else{
+			key='no_renovated'
+		}
+		if ( ! (key in weather_data)){
+			 weather_data[key] = 1;
+		  }else{
+			 weather_data[key] =weather_data[key]+1
+		  }
+		
+	  });
+	    var color = d3.scaleOrdinal()
+		.domain(weather_data)
+		.range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56"])
+	var pie = d3.pie()
+	  .value(function(d) {return d.value; })
+	var data_ready = pie(d3.entries(weather_data))
+	var arcGenerator = d3.arc()
+	  .innerRadius(0)
+	  .outerRadius(radius)
+
+	// Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+	svg
+	  .selectAll('mySlices')
+	  .data(data_ready)
+	  .enter()
+	  .append('path')
+		.attr('d', arcGenerator)
+		.attr('fill', function(d){ return(color(d.data.key)) })
+		.attr("stroke", "black")
+		.style("stroke-width", "2px")
+		.style("opacity", 0.7)
+
+	
+	// Now add the annotation. Use the centroid method to get the best coordinates
+	svg
+	  .selectAll('mySlices')
+	  .data(data_ready)
+	  .enter()
+	  .append('text')
+	  .text(function(d){ return "number of " +d.data.key +': '+Math.round((d.data.value/4603)*100)+'%'})
+	  .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+	  .style("text-anchor", "middle")
+	  .style("font-size", 12)
+   
+    
+ });
+}
+
+function hist(){ 
+
+	var margin = {top: 20, right: 50, bottom: 50, left: 60},
+		width = 800 
+		height = 400
+   
+	
+	var svg = d3.select("#datahist")
+	  .append("svg")
+		.attr("width", width+100)
+		.attr("height", height+100)	
+	  .append("g")
+		.attr("transform",
+			  "translate(" + margin.left + "," + margin.top + ")");
+
+ d3.csv("./data_final.csv", function(data) {
+ 
+    x1=d3.max(data, function(d) { return +2000000 })
+    x2=d3.min(data, function(d) { return +d.price })
+    var x = d3.scaleLinear()
+      .domain([x2,x1])     
+      .range([0, width]);
+  svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+  svg.append("text")             
+      .attr("transform",
+            "translate(" + (width/2) + " ," + 
+                           (height + margin.top + 20) + ")")
+      .style("text-anchor", "middle")
+      .text("Price");
+	  
+	 var histogram = d3.histogram()
+      .value(function(d) { return d.price; })   
+      .domain(x.domain()) 
+      .thresholds(x.ticks(50));
+ 
+  var bins = histogram(data);
+
+
+  var y = d3.scaleLinear()
+      .range([height, 0]);
+      y.domain([0, d3.max(bins, function(d) { return d.length; })]);   // d3.hist has to be called before the Y axis obviously
+  svg.append("g")
+      .call(d3.axisLeft(y));
+  svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Count");      
+
+  svg.selectAll("rect")
+      .data(bins)
+      .enter()
+      .append("rect")
+        .attr("x", 1)
+        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
+        .attr("width", function(d) { return x(d.x1) - x(d.x0) -1 ; })
+        .attr("height", function(d) { return height - y(d.length); })
+        .style("fill", "#69b3a2")	
+     });
+
+  }
+
+
+  
+  
+ function line(){
+ 
+
+// set the dimensions and margins of the graph
+var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// parse the date / time
+var parseTime = d3.timeParse("%Y/%m/%d");
+
+// set the ranges
+var x = d3.scaleTime().range([0, width]);
+var y = d3.scaleLinear().range([height, 0]);
+
+// define the line
+var valueline = d3.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.price); });
+
+// append the svg obgect to the body of the page
+// appends a 'group' element to 'svg'
+// moves the 'group' element to the top left margin
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// Get the data
+d3.csv("data_final.csv",function(data) {
+
+  // format the data
+  data.forEach(function(d) {
+      d.date = parseTime(d.date);
+      d.price = +d.price;
+  });
+
+  // Scale the range of the data
+  x.domain(d3.extent(data, function(d) { return +d.date; }));
+  y.domain([0, d3.max(data, function(d) { return d.price; })]);
+
+  // Add the valueline path.
+  svg.append("path")
+      .data([data])
+      .attr("class", "line")
+      .attr("d", valueline);
+
+  // Add the x Axis
+  svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+  // Add the y Axis
+  svg.append("g")
+      .call(d3.axisLeft(y));
+
+});
+ }
+  
+  
+ </script>
+
+<body>
+
+</body>
+
+
+
+
+
+
+
+</html>
